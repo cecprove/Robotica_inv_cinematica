@@ -15,7 +15,7 @@ function dw = funzionale_costo()
  for i=1:4
  w1=(Q(i)-q_medio(i))/q_range(i)+w1;
  end
- w1=-(1/4)*w1;
+ w1=-(1/8)*w1;
  dw1=simplify(diff(w1, 'q1'))+simplify(diff(w1, 'q2'))+simplify(diff(w1, 'q3'))+simplify(diff(w1, 'q4'));
         
         dw2 = simplify(diff(w, 'q1')) + simplify(diff(w, 'q2')) +simplify(diff(w, 'q3')) + simplify(diff(w, 'q4'));
