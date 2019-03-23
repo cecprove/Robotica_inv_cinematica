@@ -24,12 +24,21 @@ function Qddot = inv_cin_psd(Q,XYd,XYddot,a,joint_lim)
            0 0 1 ]*10;
                     
         if(det(Ja*Ja') == 0) % quindi mi trovo in singolarità cinematica     
-            Ka=[1 0; 0 1];
-            dw = funzionale_costo(joint_lim,Q,a);
-            Qddot=J_pi*(XYddot+K*e)+P*Ka*dw;% dove Xddot è la velocità desiderata dell'organo terminale
-        else
+            Ka=[1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1];
+            dw1 = funzionale_dw1(Q,a);
+            Qddot=J_pi*(XYddot+K*e)+P*Ka*dw1;% dove Xddot è la velocità desiderata dell'organo terminale
+            
+        elseif( abs(Q(1)-joint_lim(1,1)) < 1e-3 || abs(Q(1)-joint_lim(1,2)) < 1e-3...
+                    || abs(Q(2)-joint_lim(2,1)) < 1e-3 || abs(Q(2)-joint_lim(2,2)) < 1e-3...
+                    || abs(Q(3)-joint_lim(3,1)) < 1e-3 || abs(Q(3)-joint_lim(3,2)) < 1e-3...
+                    || abs(Q(4)-joint_lim(4,1)) < 1e-3 || abs(Q(4)-joint_lim(4,2)) < 1e-3) % quindi
+                % se uno qualsiasi dei giunti si trova vicino al limite di giunto
+             Ka_2=[1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1];    
+             dw2 = funzionale_dw2(Q,joint_lim);
+             Qddot=J_pi*(XYddot+K*e)+P*Ka_2*dw2; 
+             
+        else           
             Qddot=J_pi*(XYddot+K*e);
         end
-
     
     end
