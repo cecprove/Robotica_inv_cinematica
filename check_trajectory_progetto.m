@@ -6,10 +6,11 @@ clc
 load('trajectory_progetto.mat');
 load('limiti_giunto.mat');
 
-a1=9;
+% 12 10 11 10
+a1=12;
 a2=10;
 a3=11;
-a4=11;
+a4=10;
 
 
 
@@ -22,13 +23,15 @@ XYdot=[0,0,0; diff(XY,1,1)/dt];
 % abbiamo usato per la traiettoria. Tanto questo passaggio ci serve solo
 % per calcolare le posizioni iniziali con cui far partire il manipolatore,
 % successivamnete implementiamo l'algoritmo di inversione cinematica.
-% Scelgo arbitrariamente q4= 10°.
 trovato = false;
 resolution_q=deg2rad(15);
-q4 = joint_lim(4,1);                    
-while q4 <= joint_lim(4,2) && ~trovato
+q4 = joint_lim(4,1)+(deg2rad(5));                    
+while q4 <= joint_lim(4,2)-(deg2rad(5)) && ~trovato
     Q0 = cinematica_inversa_4gdl(XY(1,1:2),XY(1,3),[a1,a2,a3,a4], q4)';
-    if ~isempty(Q0)
+    if (~isempty(Q0) && joint_lim(1,1)+(deg2rad(5)) <= Q0(1) && Q0(1) <= joint_lim(1,2)-(deg2rad(5))...
+                    && joint_lim(2,1)+(deg2rad(5)) <= Q0(2) && Q0(2) <= joint_lim(2,2)-(deg2rad(5))...
+                    && joint_lim(3,1)+(deg2rad(5)) <= Q0(3) && Q0(3) <= joint_lim(3,2)-(deg2rad(5))...
+                    && joint_lim(4,1)+(deg2rad(5)) <= Q0(4) && Q0(4) <= joint_lim(4,2)-(deg2rad(5)))
         trovato = true;
         Q=Q0;
     end
@@ -42,10 +45,6 @@ XY_IK4=[];
 XY_err=[];
 joints=[];
 
-% Calcolo il jacobiano simbolico qui fuori dal ciclo for cosi non devo
-% calcolarlo per ogni i ma lo faccio una sola volta e basta
-% Ja = calcolo_jacobiano_simbolico();
-% Ja=[Ja(1:2,:);Ja(6,:)];
 
 for i=1:size(XY,1)
     
@@ -67,19 +66,20 @@ end
 
 
 figure(1)
-subplot(4,1,1)
-plot(T,joints(:,1),'-b','Linewidth',4)
+%subplot(4,1,1)
+plot(T,rad2deg(joints(:,1)),'-b','Linewidth',4)
 
+figure(3)
+%subplot(4,1,2)
+plot(T,rad2deg(joints(:,2)),'-b','Linewidth',4)
 
-subplot(4,1,2)
-plot(T,joints(:,2),'-b','Linewidth',4)
+figure(4)
+%subplot(4,1,3)
+plot(T,rad2deg(joints(:,3)),'-b','Linewidth',4)
 
-
-subplot(4,1,3)
-plot(T,joints(:,3),'-b','Linewidth',4)
-
-subplot(4,1,4)
-plot(T,joints(:,4),'-b','Linewidth',4)
+figure(6)
+%subplot(4,1,4)
+plot(T,rad2deg(joints(:,4)),'-b','Linewidth',4)
 
 
 
@@ -112,7 +112,7 @@ for i=1:20:size(XY_IK1,1)
     plot([0 XY_IK1(i,1)],[0 XY_IK1(i,2)],'-r','Linewidth',4)
     plot([XY_IK1(i,1) XY_IK2(i,1)],[XY_IK1(i,2) XY_IK2(i,2)],'-b','Linewidth',4)
     plot([XY_IK2(i,1) XY_IK3(i,1)],[XY_IK2(i,2) XY_IK3(i,2)],'-g','Linewidth',4)
-    plot([XY_IK3(i,1) XY_IK4(i,1)],[XY_IK3(i,2) XY_IK4(i,2)],'-y','Linewidth',4)
+    plot([XY_IK3(i,1) XY_IK4(i,1)],[XY_IK3(i,2) XY_IK4(i,2)],'-r','Linewidth',4)
     
     axis equal
     xlim([-5 35])
